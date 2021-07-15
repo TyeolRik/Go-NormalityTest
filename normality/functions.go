@@ -125,18 +125,28 @@ func DrawPlot(title string, XLabelName string, Xs []float64, YLabelName string, 
 	return
 }
 
+func GetAverage(data *[]float64) (average float64) {
+	n_float64 := float64(len(*data))
+	average = 0.0
+	for _, value := range *data {
+		average = average + value
+	}
+	average = average / n_float64
+	return
+}
+
 // Same Function in Excel
 // https://support.microsoft.com/en-us/office/stdev-s-function-7d69cf97-0c1f-4acf-be27-f3e83904cc23
-func Get_AverageAndStandardDeviation(data []float64) (average float64, STDEV_S float64) {
-	n_float64 := float64(len(data))
+func Get_AverageAndStandardDeviation(data *[]float64) (average float64, STDEV_S float64) {
+	n_float64 := float64(len(*data))
 	average = 0.0
-	for _, value := range data {
+	for _, value := range *data {
 		average = average + value
 	}
 	average = average / n_float64
 
 	tempSum := 0.0
-	for _, value := range data {
+	for _, value := range *data {
 		tempSum = tempSum + (value-average)*(value-average)
 	}
 	STDEV_S = math.Sqrt(tempSum / (n_float64 - 1.0))
@@ -182,4 +192,92 @@ func GetQuantileType7(data *[]float64, prob float64) (ret float64) {
 	// Need Interpolation from now on
 	ret = (*data)[uint64(position)] + ((*data)[uint64(position)+1]-(*data)[uint64(position)])*(diff)
 	return
+}
+
+func GetPvalueFromChi2(chi_square float64, degreeOfFreedom int) (P_value float64) {
+	n := float64(degreeOfFreedom)
+	P_value = pchisq(chi_square, n, 1)
+	return
+}
+
+// Reference : STAT 200EF SPRING 2016, Univ. of Illinois at Urbana-Champaign
+// http://courses.atlas.illinois.edu/spring2016/STAT/STAT200/pchisq.html
+func gser(n float64, x float64) float64 {
+	var eps = 1.e-6
+	// var gln = gamnln(n)
+	var gln = math.Log(math.Gamma(n / 2.0))
+	var a = 0.5 * n
+	var ap = a
+	var sum = 1.0 / a
+	var del = sum
+	for n := 1; n < 101; n++ {
+		ap++
+		del = del * x / ap
+		sum += del
+		if del < sum*eps {
+			break
+		}
+	}
+	return sum * math.Exp(-x+a*math.Log(x)-gln)
+}
+
+func gcf(n float64, x float64) float64 {
+	var eps = 1.e-6
+	// var gln = gamnln(n)
+	var gln = math.Log(math.Gamma(n / 2.0))
+	var a = 0.5 * n
+	var b = x + 1 - a
+	var fpmin = 1.e-300
+	var c = 1 / fpmin
+	var d = 1 / b
+	var h = d
+	for i := 1; i < 101; i++ {
+		var an = -float64(i) * (float64(i) - a)
+		b += 2.0
+		d = an*d + b
+		if math.Abs(d) < fpmin {
+			d = fpmin
+		}
+		c = b + an/c
+		if math.Abs(c) < fpmin {
+			c = fpmin
+		}
+		d = 1 / d
+		var del = d * c
+		h = h * del
+		if math.Abs(del-1) < eps {
+			break
+		}
+	}
+	return h * math.Exp(-x+a*math.Log(x)-gln)
+}
+
+// Return the incomplete Gamma function P(n/2,x)
+// Assume n is a positive integer, x>0 , won't check arguments
+func gammp(n float64, x float64) float64 {
+	if x < 0.5*n+1 {
+		return gser(n, x)
+	} else {
+		return 1 - gcf(n, x)
+	}
+}
+
+// Return the incomplete Gamma function Q(n/2,x)
+// Assume n is a positive integer, x>0 , won't check arguments
+func gammq(n float64, x float64) float64 {
+	if x < 0.5*n+1 {
+		return 1 - gser(n, x)
+	} else {
+		return gcf(n, x)
+	}
+}
+
+func pchisq(chi2 float64, n float64, ptype int) float64 {
+	if ptype == 1 {
+		// Right tail
+		return gammq(n, 0.5*chi2)
+	} else {
+		// Left tail
+		return gammp(n, 0.5*chi2)
+	}
 }
