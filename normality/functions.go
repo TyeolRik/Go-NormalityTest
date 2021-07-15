@@ -1,8 +1,15 @@
 package normality
 
 import (
+	"bufio"
 	"fmt"
+	"image/color"
+	"log"
 	"math"
+	"os"
+	"path/filepath"
+	"sort"
+	"strconv"
 
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/plotter"
@@ -60,7 +67,7 @@ func Norm_S_INV(p float64) (NormSInv float64) {
 	return
 }
 
-func DrawPlot(title string, XLabelName string, Xs []float64, YLabelName string, Ys []float64) {
+func DrawPlot(title string, XLabelName string, Xs []float64, YLabelName string, Ys []float64) (savedFileLocation string) {
 	if len(Xs) != len(Ys) {
 		panic("Different X, Y size!")
 	}
@@ -82,8 +89,97 @@ func DrawPlot(title string, XLabelName string, Xs []float64, YLabelName string, 
 
 	plotutil.AddScatters(p, points)
 
+	if title == "Q-Q Plot" {
+		// We need QQline
+		// https://github.com/wch/r-source/blob/af7f52f70101960861e5d995d3a4bec010bc89e6/src/library/stats/R/qqnorm.R#L49
+		// https://stats.stackexchange.com/a/362850
+
+		// Default Prob
+		prob := [2]float64{0.25, 0.75}
+		// Get 1, 3 Quantiles (0.25, 0.75)
+		// 보간법 : https://mycodepia.tistory.com/18
+		y := [2]float64{GetQuantileType7(&Ys, prob[0]), GetQuantileType7(&Ys, prob[1])}
+
+		// R qnorm is same with Excel NORM_S_INV
+		// https://stackoverflow.com/a/55220740/7105963
+		x := [2]float64{Norm_S_INV(prob[0]), Norm_S_INV(prob[1])}
+
+		slope := (y[1] - y[0]) / (x[1] - x[0])
+		intercept := y[0] - slope*x[0]
+
+		trendLine := plotter.NewFunction(func(f float64) float64 { return slope*f + intercept })
+		trendLine.Color = color.RGBA{B: 255, A: 255}
+		p.Add(trendLine)
+	}
+
 	// Save the plot to a PNG file.
-	if err := p.Save(4*vg.Inch, 4*vg.Inch, title+".png"); err != nil {
+	if err := p.Save(4*vg.Inch, 4*vg.Inch, "../output/"+title+".png"); err != nil {
 		panic(err)
 	}
+
+	path, err := filepath.Abs("../output/")
+	if err != nil {
+		log.Fatal(err)
+	}
+	savedFileLocation = path + "/" + title + ".png"
+	return
+}
+
+// Same Function in Excel
+// https://support.microsoft.com/en-us/office/stdev-s-function-7d69cf97-0c1f-4acf-be27-f3e83904cc23
+func Get_AverageAndStandardDeviation(data []float64) (average float64, STDEV_S float64) {
+	n_float64 := float64(len(data))
+	average = 0.0
+	for _, value := range data {
+		average = average + value
+	}
+	average = average / n_float64
+
+	tempSum := 0.0
+	for _, value := range data {
+		tempSum = tempSum + (value-average)*(value-average)
+	}
+	STDEV_S = math.Sqrt(tempSum / (n_float64 - 1.0))
+	return
+}
+
+func ReadFileAsFloat64Slice(fileLocation string) (data []float64) {
+	data = make([]float64, 0)
+
+	file, err := os.Open(fileLocation)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	// optionally, resize scanner's capacity for lines over 64K, see next example
+	for scanner.Scan() {
+		temp, _ := strconv.ParseFloat(scanner.Text(), 64)
+		data = append(data, temp)
+	}
+
+	if err := scanner.Err(); err != nil {
+		log.Fatal(err)
+	}
+	return
+}
+
+// Quantile in R, Type = 7
+// https://github.com/wch/r-source/blob/af7f52f70101960861e5d995d3a4bec010bc89e6/src/library/stats/R/quantile.R
+func GetQuantileType7(data *[]float64, prob float64) (ret float64) {
+	if !sort.IsSorted(sort.Float64Slice(*data)) {
+		panic("Failed to get Quantile. Not sorted! Check again")
+	}
+	// position := 1.0 + float64(len(*data)-1)*prob
+	position := float64(len(*data)-1) * prob // R array index start from 1, But Golang starts from 0
+	diff := position - float64(uint64(position))
+	if diff < 0.000000001 {
+		// Then prob is integer
+		ret = (*data)[uint64(position)]
+		return
+	}
+	// Need Interpolation from now on
+	ret = (*data)[uint64(position)] + ((*data)[uint64(position)+1]-(*data)[uint64(position)])*(diff)
+	return
 }

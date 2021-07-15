@@ -2,7 +2,6 @@ package normality
 
 import (
 	"fmt"
-	"math"
 	"sort"
 )
 
@@ -15,20 +14,8 @@ func QQplot(data []float64) {
 	// 1. Sort Data
 	sort.Float64s(data)
 
-	// 2-1. Get Mean
-	var mean float64 = 0.0
-	for _, value := range data {
-		mean += value
-	}
-	mean = mean / n_float64
-	// 2-2. Get Standard deviation
-	var sumOfSquare float64 = 0.0
-	for _, value := range data {
-		temp := value - mean
-		sumOfSquare = temp * temp
-	}
-	var variance float64 = sumOfSquare / (n_float64 - 1.0)
-	standardDeviation := math.Sqrt(variance)
+	// 2. Get Mean and Standard deviation
+	mean, standardDeviation := Get_AverageAndStandardDeviation(data)
 
 	ZT := make([]float64, n)
 	ZA := make([]float64, n)
@@ -37,9 +24,6 @@ func QQplot(data []float64) {
 		ZA[i] = (data[i] - mean) / standardDeviation
 	}
 
-	fmt.Println("X", ZT)
-	fmt.Println("Y", ZA)
-
-	DrawPlot("Q-Q Plot", "Theoretical Quantiles", ZT, "Empirical Quantile", ZA)
-
+	plotFile := DrawPlot("Q-Q Plot", "Theoretical Quantiles", ZT, "Sample Quantiles", ZA)
+	fmt.Println("File is saved at", plotFile)
 }
