@@ -59,3 +59,14 @@ func TestJarqueBera(t *testing.T) {
 	fmt.Println("     JB", JB)
 	fmt.Println("P_value", P_value)
 }
+
+func TestAndersonDarling(t *testing.T) {
+	data := sample
+	A, P_value := normality.AndersonDarling(data)
+	fmt.Println(A)
+	fmt.Println(P_value)
+}
+
+func TestNormalDistribution_CDF(t *testing.T) {
+	fmt.Println(normality.NormalDistribution_CDF(2, 0, 1))
+}

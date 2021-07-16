@@ -281,3 +281,10 @@ func pchisq(chi2 float64, n float64, ptype int) float64 {
 		return gammp(n, 0.5*chi2)
 	}
 }
+
+// Cumulative density function About Normal distribution
+// Same as pnorm in R
+// https://github.com/gonum/gonum/blob/master/stat/distuv/norm.go#L30-L33
+func NormalDistribution_CDF(x float64, mean float64, stdDeviation float64) float64 {
+	return 0.5 * math.Erfc(-(x-mean)/(stdDeviation*math.Sqrt2))
+}
