@@ -67,6 +67,13 @@ func TestAndersonDarling(t *testing.T) {
 	fmt.Println(P_value)
 }
 
+func TestCramerVonMises(t *testing.T) {
+	data := sample
+	T, P_value := normality.CramerVonMises(data)
+	fmt.Println("test statistics T", T)
+	fmt.Println("          P_value", P_value)
+}
+
 func TestNormalDistribution_CDF(t *testing.T) {
 	fmt.Println(normality.NormalDistribution_CDF(2, 0, 1))
 }
