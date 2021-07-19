@@ -77,3 +77,23 @@ func TestCramerVonMises(t *testing.T) {
 func TestNormalDistribution_CDF(t *testing.T) {
 	fmt.Println(normality.NormalDistribution_CDF(2, 0, 1))
 }
+
+func TestKolmogorovSmirnov(t *testing.T) {
+	// data := sample
+	// normality.KolmogorovSmirnovInR(data)
+}
+
+func TestEmpiricalDistributionFunction(t *testing.T) {
+	// 1data := []float64{11, 22, 33, 44, 55, 66, 77, 88, 99}
+	data := sample
+	sort.Float64s(data)
+	fmt.Println(data[0])
+	fmt.Println(normality.EmpiricalDistributionFunction(&data, data[0]))
+}
+
+func TestLilliefors(t *testing.T) {
+	data := sample
+	T, P_value := normality.Lilliefors(data)
+	fmt.Println("test statistics T", T)
+	fmt.Println("          P_value", P_value)
+}

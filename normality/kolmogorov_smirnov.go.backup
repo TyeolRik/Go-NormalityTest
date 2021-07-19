@@ -1,0 +1,87 @@
+package normality
+
+import (
+	"fmt"
+	"math"
+	"sort"
+)
+
+// Not completed
+
+// https://en.wikipedia.org/wiki/Kolmogorov-Smirnov_test
+func KolmogorovSmirnov(data []float64) (testStatistics float64, P_value float64) {
+	n := len(data)
+	sort.Float64s(data)
+	// n_float64 := float64(n)
+	D := make([]float64, n)
+
+	mean, std := Get_AverageAndStandardDeviation(&data)
+	for i := range D {
+		D[i] = math.Abs(EmpiricalDistributionFunction(&data, (data)[i]) - NormalDistribution_CDF((data)[i], mean, std))
+	}
+	sup := D[0]
+	for _, value := range D {
+		if sup < value {
+			sup = value
+		}
+	}
+	testStatistics = sup
+
+	for i := 0; i < 5; i++ {
+		fmt.Printf("%v\t", data[i])
+	}
+	fmt.Printf("\n")
+	for i := 0; i < 5; i++ {
+		fmt.Printf("%v\t", NormalDistribution_CDF((data)[i], 0, 1))
+	}
+	fmt.Printf("\n")
+
+	fmt.Println("Mean", mean)
+	fmt.Println(" std", std)
+	fmt.Println("   D", testStatistics)
+	return
+}
+
+// https://github.com/SurajGupta/r-source/blob/master/src/library/stats/R/ks.test.R
+func KolmogorovSmirnovInR(data []float64) (testStatistics float64, P_value float64) {
+	n := len(data)
+	sort.Float64s(data)
+	n_float64 := float64(n)
+	D := make([]float64, n)
+
+	// mean, std := Get_AverageAndStandardDeviation(&data)
+	for i := range D {
+		D[i] = NormalDistribution_CDF(data[i], 0, 1) - (float64(i) / n_float64)
+	}
+
+	for i := 0; i < 5; i++ {
+		fmt.Printf("%v\t", D[i])
+	}
+
+	two_sided := make([]float64, n)
+	if n < 100 {
+		for i := range two_sided {
+			two_sided[i] = math.Max(data[i], (1.0/n_float64)-data[i])
+		}
+	} else {
+
+	}
+
+	return
+}
+
+func f_n_x(n int, x float64, data *[]float64) (ret float64) {
+	for i := 0; i < n; i++ {
+		ret += indicatorForKStest(x, (*data)[i])
+	}
+	ret = (1.0 / float64(n)) * ret
+	return
+}
+
+func indicatorForKStest(x float64, X_i float64) float64 {
+	if X_i < x {
+		return 1.0
+	} else {
+		return 0.0
+	}
+}

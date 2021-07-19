@@ -288,3 +288,18 @@ func pchisq(chi2 float64, n float64, ptype int) float64 {
 func NormalDistribution_CDF(x float64, mean float64, stdDeviation float64) float64 {
 	return 0.5 * math.Erfc(-(x-mean)/(stdDeviation*math.Sqrt2))
 }
+
+// Should be sorted
+// https://en.wikipedia.org/wiki/Empirical_distribution_function#Definition
+func EmpiricalDistributionFunction(data *[]float64, t float64) (ret float64) {
+	n := len(*data)
+	// Should be sorted!
+	//if !sort.Float64sAreSorted(data) {
+	//	sort.Float64s(data)
+	//}
+	sumOfIndicator := sort.Search(n, func(i int) bool {
+		return (*data)[i] > t
+	})
+	ret = float64(sumOfIndicator) / float64(n)
+	return
+}
