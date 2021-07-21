@@ -17,6 +17,8 @@ var PassFail string = "PASS"
 var t table.Writer = table.NewWriter()
 
 func DoNormalityTest(data *[]float64) {
+	t = table.NewWriter()
+
 	sort.Float64s(*data)
 
 	t.SetOutputMirror(os.Stdout)

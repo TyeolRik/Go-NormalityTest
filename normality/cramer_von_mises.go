@@ -36,8 +36,9 @@ func CramerVonMises(data []float64) (W float64, P_value float64) {
 	} else if WW < 1.1 {
 		P_value = math.Exp(1.111 - 34.242*WW + 12.832*WW*WW)
 	} else {
-		log.Fatalln("p-value is smaller than 7.37e-10, cannot be computed more accurately")
+		log.Println("Cramér–von Mises criterion :: P-value is smaller than 7.37e-10, cannot be computed more accurately")
 		P_value = 7.37e-10
+		return
 	}
 
 	// Wiki Version

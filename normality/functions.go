@@ -113,11 +113,11 @@ func DrawPlot(title string, XLabelName string, Xs []float64, YLabelName string, 
 	}
 
 	// Save the plot to a PNG file.
-	if err := p.Save(4*vg.Inch, 4*vg.Inch, "../output/"+title+".png"); err != nil {
+	if err := p.Save(4*vg.Inch, 4*vg.Inch, "./output/"+title+".png"); err != nil {
 		panic(err)
 	}
 
-	path, err := filepath.Abs("../output/")
+	path, err := filepath.Abs("./output/")
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -18,7 +18,10 @@ func ShapiroFrancia(data []float64) (testStatistics float64, P_value float64) {
 	n := len(data)
 	n_float64 := float64(n)
 	if n < 5 || n > 5000 {
-		log.Fatalln("sample size must be between 5 and 5000")
+		log.Println("Shapiro-Francia test :: Sample size must be between 5 and 5000")
+		testStatistics = -999.0
+		P_value = 0.0
+		return
 	}
 	y := make([]float64, n)
 	temp := ppoints(n_float64, 0.375) // a = 3.0 / 8.0

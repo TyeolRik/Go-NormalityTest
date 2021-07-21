@@ -10,7 +10,10 @@ import (
 func D_AgostinosKsquared(data *[]float64) (Ksquared float64, P_value float64) {
 	n := len(*data)
 	if n < 20 {
-		log.Fatalln("Data is too small. Should be 20 or greater")
+		log.Println("D'Agostino's K-squared test :: Data is too small. Should be 20 or greater")
+		Ksquared = -999.0
+		P_value = 0.0
+		return
 	}
 	n_float64 := float64(n)
 
