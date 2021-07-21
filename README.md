@@ -22,6 +22,17 @@ This project is testing variables whether following Normal distribution in Go-La
 
 - [QQ plot](https://en.wikipedia.org/wiki/Q%E2%80%93Q_plot)
 
+## How to use
+
+Note the example at ```main.go```
+
+```go
+var data []float64 = make([]float64, 1000)
+// Fill the data as you want.
+// data = []float64{1, 2, 3, 4, 5, 6, 7, 8, ...}
+normality.DoNormalityTest(&data)
+```
+
 ## Example Result
 
 ### Frequentist tests
