@@ -303,3 +303,59 @@ func EmpiricalDistributionFunction(data *[]float64, t float64) (ret float64) {
 	ret = float64(sumOfIndicator) / float64(n)
 	return
 }
+
+// https://github.com/SurajGupta/r-source/blob/master/src/library/stats/R/ppoints.R
+func ppoints(n float64, a float64) []float64 {
+	if a == 0.0 {
+		if n <= 10 {
+			a = 0.375 // 3.0 / 8.0
+		} else {
+			a = 0.5 // 1.0 / 2.0
+		}
+	}
+	ret := make([]float64, int(math.Floor(n)))
+	for i := range ret {
+		ret[i] = (float64(i+1) - a) / (n + 1 - 2*a)
+	}
+
+	return ret
+}
+
+// Pearson correlation formula
+// http://www.sthda.com/english/wiki/correlation-test-between-two-variables-in-r
+func correlation_Pearson(x *[]float64, y *[]float64) (r float64) {
+	n_float64 := float64(len(*x))
+
+	// Get mean of x and y
+	var meanX, meanY float64 = 0.0, 0.0
+	for i := range *x {
+		meanX += (*x)[i]
+		meanY += (*y)[i]
+	}
+	meanX = meanX / n_float64
+	meanY = meanY / n_float64
+
+	numerator := 0.0
+	denominator1 := 0.0
+	denominator2 := 0.0
+	for i := range *x {
+		temp1, temp2 := ((*x)[i] - meanX), ((*y)[i] - meanY)
+		numerator += temp1 * temp2
+		denominator1 += temp1 * temp1
+		denominator2 += temp2 * temp2
+	}
+	r = numerator / math.Sqrt(denominator1*denominator2)
+	return
+}
+
+func tabulate(bin *[]float64, nbins int) (ret []int) {
+	ret = make([]int, nbins+1) // start from 1, because a numeric vector (of positive integers)
+	for i := range *bin {
+		now := int((*bin)[i])
+		if now > 0 {
+			ret[now]++
+		}
+	}
+	ret = ret[1:]
+	return
+}

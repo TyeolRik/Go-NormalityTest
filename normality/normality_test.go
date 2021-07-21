@@ -97,3 +97,17 @@ func TestLilliefors(t *testing.T) {
 	fmt.Println("test statistics T", T)
 	fmt.Println("          P_value", P_value)
 }
+
+func TestShapiroFrancia(t *testing.T) {
+	data := sample
+	W, P_value := normality.ShapiroFrancia(data)
+	fmt.Println("test statistics W", W)
+	fmt.Println("          P_value", P_value)
+}
+
+func TestPearsonChiSquared(t *testing.T) {
+	data := sample
+	P, P_value := normality.PearsonChiSquared(&data)
+	fmt.Println("test statistics P", P)
+	fmt.Println("          P_value", P_value)
+}

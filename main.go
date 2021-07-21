@@ -3,5 +3,6 @@ package main
 import "fmt"
 
 func main() {
-	fmt.Println("TEST")
+	a := -1
+	fmt.Println(uint64(a))
 }
