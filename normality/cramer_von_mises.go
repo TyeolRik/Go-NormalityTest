@@ -1,7 +1,6 @@
 package normality
 
 import (
-	"fmt"
 	"log"
 	"math"
 	"sort"
@@ -20,7 +19,7 @@ func CramerVonMises(data []float64) (W float64, P_value float64) {
 	for i := range p {
 		p[i] = NormalDistribution_CDF((data[i]-mean)/standardDeviation, 0, 1) // Same with pnorm(x)
 	}
-	fmt.Println(p)
+
 	// R version
 	sum := 0.0
 	for i := range p {

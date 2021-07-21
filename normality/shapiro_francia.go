@@ -1,7 +1,6 @@
 package normality
 
 import (
-	"fmt"
 	"log"
 	"math"
 	"sort"
@@ -25,9 +24,6 @@ func ShapiroFrancia(data []float64) (testStatistics float64, P_value float64) {
 	temp := ppoints(n_float64, 0.375) // a = 3.0 / 8.0
 	for i := range y {
 		y[i] = Norm_S_INV(temp[i])
-	}
-	for i := 0; i < 5; i++ {
-		fmt.Printf("%v : %v\n", i, y[i])
 	}
 	W := correlation_Pearson(&data, &y)
 	W = W * W

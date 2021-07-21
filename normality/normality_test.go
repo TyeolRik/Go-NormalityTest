@@ -111,3 +111,8 @@ func TestPearsonChiSquared(t *testing.T) {
 	fmt.Println("test statistics P", P)
 	fmt.Println("          P_value", P_value)
 }
+
+func TestDoNormalityTest(t *testing.T) {
+	data := sample
+	normality.DoNormalityTest(&data)
+}
